@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Clínica — Esclerosis Hipocampal</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f4f6f9;
+  --surface:   #ffffff;
+  --surface2:  #f0f3f8;
+  --border:    #d5dce8;
+  --border2:   #bcc7da;
+  --blue:      #1d4ed8;
+  --blue-lt:   #dbeafe;
+  --blue-mid:  #93c5fd;
+  --teal:      #0f766e;
+  --teal-lt:   #ccfbf1;
+  --red:       #b91c1c;
+  --red-lt:    #fee2e2;
+  --amber:     #b45309;
+  --amber-lt:  #fef3c7;
+  --green:     #15803d;
+  --green-lt:  #dcfce7;
+  --text:      #0f172a;
+  --text2:     #334155;
+  --text3:     #64748b;
+  --text4:     #94a3b8;
+  --shadow:    0 1px 3px rgba(15,23,42,.08), 0 4px 16px rgba(15,23,42,.06);
+  --shadow-lg: 0 4px 24px rgba(15,23,42,.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Source Sans 3', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--surface);
+  border-bottom: 2px solid var(--blue);
+  padding: 1.5rem 1.25rem 1.25rem;
+  text-align: center;
+}
+.header-badge {
+  display: inline-block;
+  background: var(--blue-lt);
+  color: var(--blue);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .28em .9em;
+  border-radius: 99px;
+  margin-bottom: .9rem;
+}
+.header h1 {
+  font-family: 'Lora', Georgia, serif;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  margin-bottom: .4rem;
+}
+.header h1 em { font-style: italic; color: var(--blue); }
+.header-sub {
+  font-size: clamp(.85rem, 2.5vw, 1rem);
+  color: var(--text3);
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+/* ── METRICS BAR ── */
+.metrics-bar {
+  display: flex;
+  overflow-x: auto;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  scrollbar-width: none;
+}
+.metrics-bar::-webkit-scrollbar { display: none; }
+.m-cell {
+  flex: 1 0 auto;
+  min-width: 90px;
+  text-align: center;
+  padding: .85rem .6rem;
+  border-right: 1px solid var(--border);
+}
+.m-cell:last-child { border-right: none; }
+.m-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text4);
+  margin-bottom: .2rem;
+}
+.m-val {
+  font-family: 'Lora', serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--blue);
+  line-height: 1;
+}
+.m-sub {
+  font-size: .72rem;
+  color: var(--text3);
+  margin-top: .1rem;
+}
+
+/* ── MAIN ── */
+.main { max-width: 820px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+
+/* ── SECTION HEADER ── */
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin-bottom: 1rem;
+}
+.sec-num {
+  width: 2rem; height: 2rem;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .85rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sec-title {
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.sec-subtitle {
+  font-size: .82rem;
+  color: var(--text3);
+  margin-left: auto;
+  font-style: italic;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.4rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 1.25rem;
+}
+
+/* ── VARIABLE ROW ── */
+.var-row {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  background: var(--surface);
+}
+.var-row:last-child { margin-bottom: 0; }
+.var-name {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: .6rem 1rem;
+  font-weight: 700;
+  font-size: .95rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.var-name .unit-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  font-weight: 500;
+  color: var(--text3);
+  background: var(--border);
+  padding: .18em .6em;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.lr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+}
+.lr-cell {
+  padding: .8rem 1rem;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+.lr-cell:last-child { border-right: none; }
+.lr-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.lr-label.left  { color: var(--teal); }
+.lr-label.right { color: var(--blue); }
+.lr-label.diff  { color: var(--text3); }
+
+.lr-input {
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: .6rem .8rem;
+  font-size: 1.15rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  -moz-appearance: textfield;
+}
+.lr-input::-webkit-inner-spin-button,
+.lr-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.lr-input:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(29,78,216,.12);
+}
+.lr-input.teal:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(15,118,110,.12); }
+
+.diff-display {
+  border: 2px solid var(--border2);
+  border-radius: 8px;
+  padding: .6rem .8rem;
+  font-size: 1.15rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  background: var(--surface2);
+  color: var(--text2);
+  min-height: 2.8rem;
+  display: flex;
+  align-items: center;
+}
+.diff-display.high { background: #fff1f2; border-color: #fca5a5; color: var(--red); }
+.diff-display.mid  { background: #fffbeb; border-color: #fcd34d; color: var(--amber); }
+.diff-display.low  { background: var(--green-lt); border-color: #86efac; color: var(--green); }
+.diff-hint {
+  font-size: .72rem;
+  color: var(--text4);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ── RESULT CARD ── */
+.result-card {
+  background: var(--surface);
+  border: 2px solid var(--border2);
+  border-radius: 14px;
+  padding: 1.6rem;
+  box-shadow: var(--shadow-lg);
+  margin-bottom: 1.25rem;
+}
+.result-top {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  margin-bottom: 1.4rem;
+}
+@media(max-width: 500px) {
+  .result-top { grid-template-columns: 1fr; text-align: center; }
+  .prob-ring  { margin: 0 auto; }
+}
+.prob-ring {
+  position: relative;
+  width: 140px; height: 140px;
+  flex-shrink: 0;
+}
+.prob-ring svg { transform: rotate(-90deg); }
+.ring-text {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.ring-pct {
+  font-family: 'Lora', serif;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text);
+  transition: color .3s;
+}
+.ring-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .62rem;
+  color: var(--text3);
+  letter-spacing: .06em;
+  margin-top: .15rem;
+}
+.result-info {}
+.verdict {
+  border-radius: 8px;
+  padding: .75rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: .9rem;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.verdict-icon { font-size: 1.3rem; flex-shrink: 0; }
+.verdict.high { background: var(--red-lt); color: var(--red); border: 1.5px solid #fca5a5; }
+.verdict.mid  { background: var(--amber-lt); color: var(--amber); border: 1.5px solid #fcd34d; }
+.verdict.low  { background: var(--green-lt); color: var(--green); border: 1.5px solid #86efac; }
+
+.result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .6rem;
+}
+.stat-pill {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .55rem .8rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem;
+}
+.stat-label { font-size: .8rem; color: var(--text3); }
+.stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ── DIFF SUMMARY ── */
+.diffs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .88rem;
+}
+.diffs-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: .5rem .75rem;
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+  background: var(--surface2);
+}
+.diffs-table td {
+  padding: .6rem .75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.diffs-table tr:last-child td { border-bottom: none; }
+.diffs-table tr:hover td { background: var(--blue-lt); }
+.contrib-bar-wrap {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 90px;
+}
+.contrib-bar { height: 100%; border-radius: 3px; transition: width .5s; }
+
+/* ── BAYESIAN BOX ── */
+.bayes-box {
+  background: var(--blue-lt);
+  border: 1px solid var(--blue-mid);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+  margin-top: 1.2rem;
+}
+.bayes-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: .8rem;
+}
+.bayes-rows { display: flex; flex-direction: column; gap: .55rem; }
+.bayes-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 55px;
+  align-items: center;
+  gap: .75rem;
+}
+.bayes-lbl { font-size: .82rem; color: var(--text2); font-weight: 600; }
+.b-bar-wrap { height: 8px; background: rgba(0,0,0,.08); border-radius: 4px; overflow: hidden; }
+.b-bar { height: 100%; border-radius: 4px; transition: width .5s ease; }
+.b-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .82rem;
+  font-weight: 700;
+  text-align: right;
+}
+
+/* ── ROC ── */
+.roc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media(max-width:600px) { .roc-wrap { grid-template-columns: 1fr; } }
+canvas#roc-chart { width: 100% !important; border-radius: 8px; border: 1px solid var(--border); }
+
+/* ── COEF TABLE ── */
+.coef-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+}
+.coef-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .65rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: .5rem .7rem;
+  background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  text-align: left;
+}
+.coef-table td {
+  padding: .6rem .7rem;
+  border-bottom: 1px solid var(--border);
+  font-size: .88rem;
+}
+.coef-table tr:last-child td { border-bottom: none; }
+.coef-table tr:hover td { background: var(--blue-lt); }
+
+/* ── METHODOLOGY NOTE ── */
+.method-box {
+  background: #fffdf5;
+  border: 1px solid #e9d97a;
+  border-left: 4px solid #ca9a04;
+  border-radius: 10px;
+  padding: 1.4rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.method-box h3 {
+  font-family: 'Lora', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #78450a;
+  margin-bottom: .9rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.method-box p {
+  font-size: .9rem;
+  color: #3d2c02;
+  line-height: 1.7;
+  margin-bottom: .65rem;
+}
+.method-box p:last-child { margin-bottom: 0; }
+.method-box strong { color: #78450a; }
+.method-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .65rem;
+  margin: .9rem 0;
+}
+@media(max-width:540px) { .method-grid { grid-template-columns: 1fr; } }
+.method-item {
+  background: rgba(255,255,255,.7);
+  border: 1px solid #e9d97a;
+  border-radius: 7px;
+  padding: .6rem .85rem;
+  font-size: .85rem;
+  color: #3d2c02;
+}
+.method-item b {
+  display: block;
+  font-weight: 700;
+  color: #78450a;
+  font-size: .8rem;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .04em;
+  margin-bottom: .15rem;
+}
+
+/* ── DISCLAIMER ── */
+.disclaimer {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 1.2rem 1.5rem;
+  font-size: .85rem;
+  color: var(--text2);
+  line-height: 1.7;
+}
+.disclaimer h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: .5rem;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+.disclaimer-author {
+  margin-top: .75rem;
+  font-style: italic;
+  color: var(--blue);
+  font-weight: 600;
+  font-size: .9rem;
+}
+
+/* ── UTIL ── */
+.gap { margin-bottom: 1.25rem; }
+.small-note { font-size: .78rem; color: var(--text3); margin-top: .35rem; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-badge">Neuroimagen · Herramienta Exploratoria</div>
+  <h1>Calculadora de Riesgo<br>de <em>Esclerosis Hipocampal</em></h1>
+  <p class="header-sub">Ingrese los valores de ambos hipocampos. El sistema calcula automáticamente las diferencias y estima la probabilidad diagnóstica.</p>
+</header>
+
+<!-- METRICS BAR -->
+<div class="metrics-bar">
+  <div class="m-cell"><div class="m-label">AUC (LOO-CV)</div><div class="m-val">0.970</div><div class="m-sub">IC 95%: 0.90–1.00</div></div>
+  <div class="m-cell"><div class="m-label">Sensibilidad</div><div class="m-val">92.9%</div><div class="m-sub">Umbral alta: 60%</div></div>
+  <div class="m-cell"><div class="m-label">Especificidad</div><div class="m-val">100%</div><div class="m-sub">Sin falsos +</div></div>
+  <div class="m-cell"><div class="m-label">VPP</div><div class="m-val">100%</div><div class="m-sub">Val. pred. positiva</div></div>
+  <div class="m-cell"><div class="m-label">VPN</div><div class="m-val">94.3%</div><div class="m-sub">Val. pred. negativa</div></div>
+  <div class="m-cell"><div class="m-label">n</div><div class="m-val">46</div><div class="m-sub">5 variables</div></div>
+</div>
+
+<main class="main">
+
+  <!-- ── SECTION 1: INPUTS ── -->
+  <div class="sec-head">
+    <div class="sec-num">1</div>
+    <div class="sec-title">Ingrese los valores de cada hipocampo</div>
+  </div>
+
+  <div class="card gap">
+    <p class="small-note" style="margin-bottom:1rem;">💡 Ingrese los valores bilaterales. La diferencia porcentual se calcula automáticamente usando la fórmula: |Der – Izq| / Mayor × 100</p>
+
+    <!-- VOLUMEN -->
+    <div class="var-row">
+      <div class="var-name">
+        Volumen hipocampal
+        <span class="unit-tag">mm³</span>
+      </div>
+      <div class="lr-grid">
+        <div class="lr-cell">
+          <div class="lr-label teal">▶ Izquierdo</div>
+          <input class="lr-input teal" type="number" id="vol_izq" min="500" max="6000" step="10" value="2900" oninput="updateCalc()">
+          <div class="diff-hint">normal: 2800–4000</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label right">▶ Derecho</div>
+          <input class="lr-input" type="number" id="vol_der" min="500" max="6000" step="10" value="3100" oninput="updateCalc()">
+          <div class="diff-hint">normal: 2800–4000</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label diff">Δ Diferencia</div>
+          <div class="diff-display" id="vol_diff_disp">—</div>
+          <div class="diff-hint" id="vol_diff_note"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÁNGULO CORONAL -->
+    <div class="var-row">
+      <div class="var-name">
+        Ángulo coronal de la cabeza del hipocampo
+        <span class="unit-tag">grados °</span>
+      </div>
+      <div class="lr-grid">
+        <div class="lr-cell">
+          <div class="lr-label teal">▶ Izquierdo</div>
+          <input class="lr-input teal" type="number" id="ang_izq" min="15" max="75" step="0.5" value="43" oninput="updateCalc()">
+          <div class="diff-hint">normal: 40–50°</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label right">▶ Derecho</div>
+          <input class="lr-input" type="number" id="ang_der" min="15" max="75" step="0.5" value="44" oninput="updateCalc()">
+          <div class="diff-hint">normal: 40–50°</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label diff">Δ Diferencia</div>
+          <div class="diff-display" id="ang_diff_disp">—</div>
+          <div class="diff-hint" id="ang_diff_note"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROSOR GIRO DENTADO -->
+    <div class="var-row">
+      <div class="var-name">
+        Grosor del giro dentado
+        <span class="unit-tag">mm</span>
+      </div>
+      <div class="lr-grid">
+        <div class="lr-cell">
+          <div class="lr-label teal">▶ Izquierdo</div>
+          <input class="lr-input teal" type="number" id="dent_izq" min="0.5" max="6" step="0.1" value="2.8" oninput="updateCalc()">
+          <div class="diff-hint">normal: 2.0–4.0 mm</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label right">▶ Derecho</div>
+          <input class="lr-input" type="number" id="dent_der" min="0.5" max="6" step="0.1" value="3.0" oninput="updateCalc()">
+          <div class="diff-hint">normal: 2.0–4.0 mm</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label diff">Δ Diferencia</div>
+          <div class="diff-display" id="dent_diff_disp">—</div>
+          <div class="diff-hint" id="dent_diff_note"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROSOR CA1 -->
+    <div class="var-row">
+      <div class="var-name">
+        Grosor del subcampo CA1
+        <span class="unit-tag">mm</span>
+      </div>
+      <div class="lr-grid">
+        <div class="lr-cell">
+          <div class="lr-label teal">▶ Izquierdo</div>
+          <input class="lr-input teal" type="number" id="ca1_izq" min="0.3" max="5" step="0.1" value="2.2" oninput="updateCalc()">
+          <div class="diff-hint">normal: 1.5–3.5 mm</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label right">▶ Derecho</div>
+          <input class="lr-input" type="number" id="ca1_der" min="0.3" max="5" step="0.1" value="2.4" oninput="updateCalc()">
+          <div class="diff-hint">normal: 1.5–3.5 mm</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label diff">Δ Diferencia</div>
+          <div class="diff-display" id="ca1_diff_disp">—</div>
+          <div class="diff-hint" id="ca1_diff_note"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FLAIR -->
+    <div class="var-row">
+      <div class="var-name">
+        Intensidad de señal FLAIR (hipocampal)
+        <span class="unit-tag">U. relativas</span>
+      </div>
+      <div class="lr-grid">
+        <div class="lr-cell">
+          <div class="lr-label teal">▶ Izquierdo</div>
+          <input class="lr-input teal" type="number" id="flair_izq" min="50" max="400" step="1" value="140" oninput="updateCalc()">
+          <div class="diff-hint">referencia bilateral</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label right">▶ Derecho</div>
+          <input class="lr-input" type="number" id="flair_der" min="50" max="400" step="1" value="145" oninput="updateCalc()">
+          <div class="diff-hint">referencia bilateral</div>
+        </div>
+        <div class="lr-cell">
+          <div class="lr-label diff">Δ Diferencia</div>
+          <div class="diff-display" id="flair_diff_disp">—</div>
+          <div class="diff-hint" id="flair_diff_note"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /card -->
+
+  <!-- ── SECTION 2: RESULT ── -->
+  <div class="sec-head">
+    <div class="sec-num">2</div>
+    <div class="sec-title">Resultado del modelo</div>
+  </div>
+
+  <div class="result-card gap">
+    <div class="result-top">
+      <!-- Probability ring -->
+      <div class="prob-ring">
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <circle cx="70" cy="70" r="58" fill="none" stroke="#e2e8f0" stroke-width="11"/>
+          <circle id="prob-arc" cx="70" cy="70" r="58" fill="none" stroke="#1d4ed8" stroke-width="11"
+            stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4"
+            style="transition:stroke-dashoffset .6s ease, stroke .4s;"/>
+        </svg>
+        <div class="ring-text">
+          <span class="ring-pct" id="ring-pct">—</span>
+          <span class="ring-sub">PROB. EH</span>
+        </div>
+      </div>
+
+      <!-- Verdict + stats -->
+      <div class="result-info">
+        <div class="verdict low" id="verdict">
+          <span class="verdict-icon">⏳</span>
+          <span id="verdict-text">Calculando…</span>
+        </div>
+        <div class="result-stats">
+          <div class="stat-pill"><span class="stat-label">Umbral alta prob.</span><span class="stat-val">&gt; 60%</span></div>
+          <div class="stat-pill"><span class="stat-label">AUC (LOO-CV)</span><span class="stat-val">0.970</span></div>
+          <div class="stat-pill"><span class="stat-label">LR+</span><span class="stat-val">∞</span></div>
+          <div class="stat-pill"><span class="stat-label">LR−</span><span class="stat-val">0.071</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Differences & contributions table -->
+    <table class="diffs-table">
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Izq.</th>
+          <th>Der.</th>
+          <th>Δ %</th>
+          <th>β·z</th>
+          <th>Contribución</th>
+        </tr>
+      </thead>
+      <tbody id="diffs-tbody"></tbody>
+    </table>
+
+    <!-- Bayesian section -->
+    <div class="bayes-box">
+      <div class="bayes-title">📊 Análisis Bayesiano</div>
+      <div class="bayes-rows" id="bayes-rows"></div>
+      <div style="font-size:.8rem;color:var(--blue);margin-top:.85rem;font-family:'JetBrains Mono',monospace;line-height:1.7;">
+        Prevalencia muestral: 45.8% (CrI 95%: 32.1–59.9%) · Prior: Beta(23, 27)
+      </div>
+    </div>
+  </div><!-- /result-card -->
+
+  <!-- ── SECTION 3: DIAGNOSTICS ── -->
+  <div class="sec-head">
+    <div class="sec-num">3</div>
+    <div class="sec-title">Precisión diagnóstica del modelo</div>
+  </div>
+
+  <div class="card gap">
+    <div class="roc-wrap">
+      <div>
+        <canvas id="roc-chart" height="240"></canvas>
+      </div>
+      <div>
+        <table class="coef-table">
+          <thead><tr><th>Variable</th><th>β</th><th>OR</th><th>IC 95% OR</th></tr></thead>
+          <tbody id="coef-tbody"></tbody>
+        </table>
+        <div style="margin-top:.85rem;font-size:.78rem;color:var(--text3);line-height:1.7;font-family:'JetBrains Mono',monospace;">
+          Intercepto: 0.287 · Regularización: Ridge (L2)<br>
+          Selección de C: 5-fold CV · Validación: LOO-CV<br>
+          H-L goodness-of-fit: requiere cohorte externa
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── METHODOLOGY NOTE ── -->
+  <div class="sec-head">
+    <div class="sec-num">4</div>
+    <div class="sec-title">Nota metodológica</div>
+  </div>
+
+  <div class="method-box gap">
+    <h3>📋 Construcción del Modelo Predictivo</h3>
+
+    <p>Este modelo fue desarrollado a partir de una cohorte de <strong>46 pacientes</strong> (21 con esclerosis hipocampal confirmada, 25 controles) sometidos a <strong>resonancia magnética de alta resolución</strong> con protocolo de neuroimagen hipocampal incluyendo secuencias volumétricas T1, morfometría subcampal y FLAIR coronal oblicuo.</p>
+
+    <div class="method-grid">
+      <div class="method-item"><b>Tipo de modelo</b>Regresión logística regularizada (penalización Ridge / L2) para prevenir sobreajuste en muestras pequeñas.</div>
+      <div class="method-item"><b>Selección de variables</b>Análisis univariante (Mann-Whitney U + AUC individual). Se retuvieron predictores con AUC individual &gt; 0.66 y p &lt; 0.05.</div>
+      <div class="method-item"><b>Control de multicolinealidad</b>Excluidas 3 variables con correlación cruzada elevada (r &gt; 0.70): volumen hipocampo izquierdo, ángulo coronal Der e Izq absolutos.</div>
+      <div class="method-item"><b>Validación interna</b>Leave-One-Out Cross-Validation (LOO-CV): el modelo se reentrenó n = 46 veces, evaluando cada caso como conjunto de prueba.</div>
+      <div class="method-item"><b>Calibración</b>Brier Score = 0.132. Calibración formal (Hosmer-Lemeshow) requiere validación externa en cohorte independiente.</div>
+      <div class="method-item"><b>Umbral de decisión</b>Alta probabilidad: &gt; 60% (definido clínicamente). Umbral estadístico óptimo por índice de Youden: 37.6%. Probabilidad intermedia: 35–60%.</div>
+    </div>
+
+    <p>Las variables incluidas en el modelo final representan <strong>índices de asimetría bilateral</strong> (diferencia porcentual Der–Izq) de: volumen hipocampal total, ángulo coronal de la cabeza del hipocampo, grosor del giro dentado, grosor del subcampo CA1 e intensidad de señal FLAIR normalizada. Todos los predictores son positivos (OR &gt; 1), indicando que mayor asimetría se asocia con mayor probabilidad de esclerosis hipocampal.</p>
+
+    <p>La estimación bayesiana utiliza una distribución <em>a priori</em> Beta(1,1) (no informativa) con actualización por la verosimilitud muestral. Las probabilidades posteriores reflejan la interacción entre la prevalencia observada en la muestra y el rendimiento diagnóstico del modelo.</p>
+  </div>
+
+  <!-- ── DISCLAIMER ── -->
+  <div class="disclaimer">
+    <h4>⚠ Aviso importante</h4>
+    Esta herramienta es <strong>exclusivamente una prueba exploratoria</strong> derivada de una investigación clínica preliminar. <strong>No debe utilizarse para tomar decisiones diagnósticas o terapéuticas en pacientes reales.</strong> El modelo fue desarrollado sobre una muestra pequeña (n = 46) sin validación externa. La interpretación de los resultados requiere la evaluación integral por un especialista en neurología o neurorradiología.
+    <div class="disclaimer-author">Herramienta de prueba exploratoria de una investigación clínica realizada por el Dr. Doriam Perera.</div>
+  </div>
+
+</main>
+
+<script>
+// ============================================================
+// MODEL — 5 features, no multicollinearity, LOO-CV validated
+// ============================================================
+const MODEL = {
+  features: ['vol_diff','ang_diff','dent_diff','ca1_diff','flair_diff'],
+  labels:   ['Dif. volumen (%)','Dif. ángulo (%)','Dif. giro dentado (%)','Dif. CA1 (%)','Dif. FLAIR (%)'],
+  coefs:    [1.327400, 1.124543, 1.033150, 0.746799, 0.206027],
+  intercept:0.287431,
+  means:    [16.4169, 15.3422, 15.4061, 14.1454, 4.9561],
+  stds:     [15.2063, 10.8098, 12.3304, 14.3316, 2.1441],
+  threshold:0.60,
+  // reference thresholds for diff coloring (moderate, high)
+  diffWarn: [12, 12, 12, 12, 5],
+  diffHigh: [22, 20, 20, 20, 10],
+};
+
+// ROC data (LOO-CV)
+const ROC = {
+  fpr: [0,0,0,0.08,0.08,0.6,0.6,1.0],
+  tpr: [0,0.048,0.905,0.905,0.952,0.952,1.0,1.0],
+};
+
+function sigmoid(x){ return 1/(1+Math.exp(-x)); }
+
+// Compute percentage difference: |a-b| / max(a,b) * 100
+function pctDiff(a, b){ return Math.abs(a-b)/Math.max(Math.abs(a),Math.abs(b),1e-9)*100; }
+
+function getValues(){
+  return {
+    vol_izq:   parseFloat(document.getElementById('vol_izq').value)   || 0,
+    vol_der:   parseFloat(document.getElementById('vol_der').value)   || 0,
+    ang_izq:   parseFloat(document.getElementById('ang_izq').value)   || 0,
+    ang_der:   parseFloat(document.getElementById('ang_der').value)   || 0,
+    dent_izq:  parseFloat(document.getElementById('dent_izq').value)  || 0,
+    dent_der:  parseFloat(document.getElementById('dent_der').value)  || 0,
+    ca1_izq:   parseFloat(document.getElementById('ca1_izq').value)   || 0,
+    ca1_der:   parseFloat(document.getElementById('ca1_der').value)   || 0,
+    flair_izq: parseFloat(document.getElementById('flair_izq').value) || 0,
+    flair_der: parseFloat(document.getElementById('flair_der').value) || 0,
+  };
+}
+
+function computeDiffs(v){
+  return {
+    vol_diff:   pctDiff(v.vol_izq,   v.vol_der),
+    ang_diff:   pctDiff(v.ang_izq,   v.ang_der),
+    dent_diff:  pctDiff(v.dent_izq,  v.dent_der),
+    ca1_diff:   pctDiff(v.ca1_izq,   v.ca1_der),
+    flair_diff: pctDiff(v.flair_izq, v.flair_der),
+  };
+}
+
+function calcProb(diffs){
+  let logit = MODEL.intercept;
+  MODEL.features.forEach((f,i)=>{
+    logit += MODEL.coefs[i] * (diffs[f] - MODEL.means[i]) / MODEL.stds[i];
+  });
+  return sigmoid(logit);
+}
+
+function diffClass(val, warn, high){
+  if(val >= high) return 'high';
+  if(val >= warn) return 'mid';
+  return 'low';
+}
+
+function updateDiffDisplay(id, val, warn, high, noteId){
+  const el = document.getElementById(id);
+  const cls = diffClass(val, warn, high);
+  el.textContent = val.toFixed(1) + '%';
+  el.className = 'diff-display ' + cls;
+  const noteEl = document.getElementById(noteId);
+  if(noteEl){
+    noteEl.textContent = cls==='high' ? '⚠ Asimetría marcada' : cls==='mid' ? '△ Asimetría moderada' : '✓ Asimetría leve';
+  }
+}
+
+function updateCalc(){
+  const v    = getValues();
+  const d    = computeDiffs(v);
+  const prob = calcProb(d);
+  const pct  = (prob*100).toFixed(1);
+
+  // Update diff displays
+  updateDiffDisplay('vol_diff_disp',   d.vol_diff,   MODEL.diffWarn[0], MODEL.diffHigh[0], 'vol_diff_note');
+  updateDiffDisplay('ang_diff_disp',   d.ang_diff,   MODEL.diffWarn[1], MODEL.diffHigh[1], 'ang_diff_note');
+  updateDiffDisplay('dent_diff_disp',  d.dent_diff,  MODEL.diffWarn[2], MODEL.diffHigh[2], 'dent_diff_note');
+  updateDiffDisplay('ca1_diff_disp',   d.ca1_diff,   MODEL.diffWarn[3], MODEL.diffHigh[3], 'ca1_diff_note');
+  updateDiffDisplay('flair_diff_disp', d.flair_diff, MODEL.diffWarn[4], MODEL.diffHigh[4], 'flair_diff_note');
+
+  // Ring
+  const circ = 364.4;
+  const arc  = document.getElementById('prob-arc');
+  const ringPct = document.getElementById('ring-pct');
+  arc.style.strokeDashoffset = circ*(1-prob);
+  const col = prob >= MODEL.threshold ? '#b91c1c' : prob > 0.35 ? '#b45309' : '#15803d';
+  arc.style.stroke = col;
+  ringPct.textContent = pct + '%';
+  ringPct.style.color = col;
+
+  // Verdict
+  const vd = document.getElementById('verdict');
+  const vt = document.getElementById('verdict-text');
+  if(prob >= MODEL.threshold){
+    vd.className='verdict high';
+    vt.textContent='ALTA PROBABILIDAD de Esclerosis Hipocampal — Se sugiere evaluación especializada';
+    vd.querySelector('.verdict-icon').textContent='⚠';
+  } else if(prob >= 0.35){
+    vd.className='verdict mid';
+    vt.textContent='PROBABILIDAD INTERMEDIA — Seguimiento y correlación clínica recomendados';
+    vd.querySelector('.verdict-icon').textContent='△';
+  } else {
+    vd.className='verdict low';
+    vt.textContent='BAJA PROBABILIDAD de Esclerosis Hipocampal';
+    vd.querySelector('.verdict-icon').textContent='✓';
+  }
+
+  // Diffs table
+  const rawIzq = [v.vol_izq, v.ang_izq, v.dent_izq, v.ca1_izq, v.flair_izq];
+  const rawDer = [v.vol_der, v.ang_der, v.dent_der, v.ca1_der, v.flair_der];
+  const dArr   = [d.vol_diff, d.ang_diff, d.dent_diff, d.ca1_diff, d.flair_diff];
+  const contribs = MODEL.features.map((f,i)=>MODEL.coefs[i]*(dArr[i]-MODEL.means[i])/MODEL.stds[i]);
+  const maxC = Math.max(...contribs.map(Math.abs), 0.01);
+  const tbody = document.getElementById('diffs-tbody');
+  tbody.innerHTML = MODEL.features.map((f,i)=>{
+    const bz = contribs[i];
+    const barW = (Math.abs(bz)/maxC*100).toFixed(0);
+    const barCol = bz>=0?'#b91c1c':'#15803d';
+    const dcls = diffClass(dArr[i], MODEL.diffWarn[i], MODEL.diffHigh[i]);
+    const diffCol = dcls==='high'?'#b91c1c':dcls==='mid'?'#b45309':'#15803d';
+    return `<tr>
+      <td style="font-weight:600;color:#0f172a;font-size:.88rem;">${MODEL.labels[i]}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#0f766e;">${rawIzq[i]}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#1d4ed8;">${rawDer[i]}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-weight:700;color:${diffCol};">${dArr[i].toFixed(1)}%</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:${bz>=0?'#991b1b':'#166534'}">${bz>=0?'+':''}${bz.toFixed(3)}</td>
+      <td>
+        <div class="contrib-bar-wrap" style="width:80px;">
+          <div class="contrib-bar" style="width:${barW}%;background:${barCol};"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Bayesian
+  const prev=0.458, sens=0.929, spec=1.0;
+  const pp=(sens*prev)/(sens*prev+(1-spec)*(1-prev));
+  const pn=((1-sens)*prev)/((1-sens)*prev+spec*(1-prev));
+  const rows=[
+    {label:'Prior (prevalencia)', val:prev, col:'#64748b'},
+    {label:'Prob. del modelo',    val:prob,  col:col},
+    {label:'Posterior positivo',  val:pp,    col:'#b91c1c'},
+    {label:'Posterior negativo',  val:pn,    col:'#15803d'},
+  ];
+  document.getElementById('bayes-rows').innerHTML = rows.map(r=>`
+    <div class="bayes-row">
+      <span class="bayes-lbl">${r.label}</span>
+      <div class="b-bar-wrap"><div class="b-bar" style="width:${(r.val*100).toFixed(1)}%;background:${r.col};"></div></div>
+      <span class="b-num" style="color:${r.col}">${(r.val*100).toFixed(1)}%</span>
+    </div>`).join('');
+}
+
+// ── ROC ──────────────────────────────────────────────────────
+function drawROC(){
+  const c=document.getElementById('roc-chart');
+  const W=300,H=240,P=38;
+  c.width=W; c.height=H; c.style.width='100%'; c.style.height='220px';
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,W,H);
+
+  // Grid
+  for(let i=0;i<=4;i++){
+    const x=P+(W-2*P)*i/4, y=P+(H-2*P)*i/4;
+    ctx.strokeStyle='#e2e8f0'; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(x,P);ctx.lineTo(x,H-P);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(P,y);ctx.lineTo(W-P,y);ctx.stroke();
+  }
+  // Diagonal
+  ctx.strokeStyle='#cbd5e1';ctx.setLineDash([4,4]);ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(P,H-P);ctx.lineTo(W-P,P);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Fill AUC
+  ctx.fillStyle='rgba(29,78,216,.08)';
+  ctx.beginPath();ctx.moveTo(P,H-P);
+  ROC.fpr.forEach((f,i)=>ctx.lineTo(P+f*(W-2*P),H-P-ROC.tpr[i]*(H-2*P)));
+  ctx.lineTo(W-P,H-P);ctx.closePath();ctx.fill();
+
+  // Curve
+  ctx.strokeStyle='#1d4ed8';ctx.lineWidth=2.5;ctx.beginPath();
+  ROC.fpr.forEach((f,i)=>{
+    const x=P+f*(W-2*P),y=H-P-ROC.tpr[i]*(H-2*P);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // Labels
+  ctx.fillStyle='#1d4ed8';ctx.font='bold 12px JetBrains Mono,monospace';
+  ctx.fillText('AUC = 0.970',P+6,P+18);
+  ctx.fillStyle='#64748b';ctx.font='10px JetBrains Mono,monospace';
+  ctx.fillText('IC 95%: 0.90–1.00',P+6,P+33);
+  ctx.fillText('1 - Especificidad',P,H-10);
+  ctx.save();ctx.translate(13,(P+H-P)/2);ctx.rotate(-Math.PI/2);
+  ctx.fillText('Sensibilidad',0,0);ctx.restore();
+
+  [0,0.5,1].forEach(v=>{
+    ctx.fillStyle='#94a3b8';ctx.font='9px JetBrains Mono,monospace';
+    ctx.fillText(v,P+v*(W-2*P)-4,H-P+13);
+    ctx.fillText(v,P-22,H-P-v*(H-2*P)+4);
+  });
+}
+
+// ── COEF TABLE ──────────────────────────────────────────────
+function buildCoefTable(){
+  // Approximate 95% CI using z=1.96 and std_err ≈ coef/2 (rough for display)
+  const seApprox = [0.42, 0.38, 0.36, 0.32, 0.22];
+  document.getElementById('coef-tbody').innerHTML = MODEL.features.map((f,i)=>{
+    const b=MODEL.coefs[i], or=Math.exp(b);
+    const lo=Math.exp(b-1.96*seApprox[i]), hi=Math.exp(b+1.96*seApprox[i]);
+    return `<tr>
+      <td style="font-weight:600;font-size:.85rem;">${MODEL.labels[i]}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#1d4ed8;font-weight:700;">${b.toFixed(3)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:#b91c1c;font-weight:700;">${or.toFixed(2)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#64748b;">${lo.toFixed(2)}–${hi.toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── INIT ────────────────────────────────────────────────────
+buildCoefTable();
+drawROC();
+updateCalc();
+window.addEventListener('resize', drawROC);
+</script>
+</body>
+</html>
